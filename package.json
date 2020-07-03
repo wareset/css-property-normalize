@@ -1,0 +1,15 @@
+{
+  "name": "css-property-normalize",
+  "version": "1.0.0",
+  "description": "Function for checking and validating css properties",
+  "main": "index.js",
+  "repository": "https://github.com/wareset/css-property-normalize.git",
+  "author": "wareset <git@wareset.com>",
+  "license": "MIT",
+  "keywords": [
+    "css",
+    "style",
+    "prefix",
+    "webkit"
+  ]
+}
