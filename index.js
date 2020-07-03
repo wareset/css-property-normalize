@@ -19,8 +19,8 @@ function cssCamel(v) {
 }
 
 // webkitUserDrag
-function cssProp(val, isCamel = cssProp.isCamel, strict = cssProp.isStrict) {
-  if (!val || typeof val !== 'string') return strict ? false : val;
+function cssProp(val, isCamelCase = cssProp.isCamelCase, isStrictMode = cssProp.isStrict) {
+  if (!val || typeof val !== 'string') return isStrictMode ? false : val;
 
   val = val.trim();
   let camel, kebab, isset;
@@ -51,11 +51,11 @@ function cssProp(val, isCamel = cssProp.isCamel, strict = cssProp.isStrict) {
     cssProp.CACHE[val] = [camel, kebab, isset];
   }
 
-  if (strict && !isset) return false;
-  return isCamel ? camel : kebab;
+  if (isStrictMode && !isset) return false;
+  return isCamelCase ? camel : kebab;
 }
-cssProp.isCamel = false;
-cssProp.isStrict = false;
+cssProp.isCamelCase = false;
+cssProp.isStrictMode = false;
 cssProp.PREFIX = '';
 cssProp.PREFIXES = [];
 cssProp.CACHE = {};
