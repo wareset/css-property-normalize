@@ -14,41 +14,58 @@ function cssCamel(v) {
     .split('-')
     .map((v, k) => (!k ? v : v[0].toUpperCase() + v.slice(1)))
     .join('');
-
   return v;
 }
 
-// webkitUserDrag
-function cssProp(val, isCamelCase = cssProp.isCamelCase, isStrictMode = cssProp.isStrict) {
-  if (!val || typeof val !== 'string') return isStrictMode ? false : val;
+/**
+ * Function for checking and validating css properties
+ * @param {string} property - css property
+ * @param {boolean} [isCamelCase] - camelcased return
+ * @param {boolean} [isStrictMode] - return 'false' if property not isset
+ */
+function cssProp(
+  property,
+  isCamelCase = cssProp.isCamelCase,
+  isStrictMode = cssProp.isStrict
+) {
+  if (!property || typeof property !== 'string') {
+    return isStrictMode ? false : property;
+  }
 
-  val = val.trim();
+  property = property.trim();
   let camel, kebab, isset;
 
-  if (val in cssProp.CACHE) {
-    [camel, kebab, isset] = cssProp.CACHE[val];
+  if (property in cssProp._CACHE) {
+    [camel, kebab, isset] = cssProp._CACHE[property];
   } else {
     isset = true;
-    kebab = cssKebab(val);
+    kebab = cssKebab(property);
     if (kebab.indexOf('-')) {
       kebab = kebab
         .split('-')
         .filter((v, k) => {
-          if (k || !cssProp.PREFIXES.some((prefix) => v === prefix)) return v;
+          if (k || !cssProp.PREFIXES_LIST.some((prefix) => v === prefix)) {
+            return v;
+          }
           return '';
         })
         .join('-');
     }
 
     camel = cssCamel(kebab);
-    if (!(camel in cssProp.PROPERTIES)) {
-      const camelPrefixed = cssCamel(cssProp.PREFIX + '-' + kebab);
-      if (camelPrefixed in cssProp.PROPERTIES) {
-        (camel = camelPrefixed), (kebab = cssKebab(camelPrefixed));
-      } else isset = false;
+    if (cssProp.PROPERTIES && !(camel in cssProp.PROPERTIES)) {
+      isset = false;
+      cssProp._PREFIXES.some((prefix) => {
+        const camelPrefixed = cssCamel(prefix + '-' + kebab);
+        if (camelPrefixed in cssProp.PROPERTIES) {
+          (camel = camelPrefixed), (kebab = '-' + cssKebab(camelPrefixed));
+          isset = true;
+        }
+        return isset;
+      });
     }
 
-    cssProp.CACHE[val] = [camel, kebab, isset];
+    cssProp._CACHE[property] = [camel, kebab, isset];
   }
 
   if (isStrictMode && !isset) return false;
@@ -56,29 +73,41 @@ function cssProp(val, isCamelCase = cssProp.isCamelCase, isStrictMode = cssProp.
 }
 cssProp.isCamelCase = false;
 cssProp.isStrictMode = false;
-cssProp.PREFIX = '';
-cssProp.PREFIXES = [];
-cssProp.CACHE = {};
+
+cssProp._PREFIXES = '';
+cssProp.PREFIXES_LIST = [];
+cssProp._CACHE = {};
 cssProp.PROPERTIES = {};
 
 cssProp.setPrefixes = function setPrefixes(...args) {
-  cssProp.PREFIX = '';
-  cssProp.PREFIXES = [].concat(...args);
+  cssProp.PREFIXES_LIST = []
+    .concat(...args, cssProp._PREFIXES)
+    .filter((v, k, a) => a.indexOf(v) === k);
 
-  cssProp.PROPERTIES = {};
-  if (typeof window !== 'undefined') {
-    cssProp.PROPERTIES = { ...window.document.body.style };
-  }
-
-  const regexp = new RegExp('^(' + cssProp.PREFIXES.join('|') + ')[A-Z]');
-  Object.keys(cssProp.PROPERTIES).some((prop) => {
-    const match = prop.match(regexp);
-    return match && (cssProp.PREFIX = match[1]);
-  });
-
-  return cssProp.PREFIX;
+  return cssProp.PREFIXES_LIST;
 };
 
-(() => cssProp.setPrefixes(['webkit', 'ms', 'o']))();
+(() => {
+  cssProp._PREFIXES = [];
+  cssProp.PROPERTIES = null;
+
+  if (typeof window !== 'undefined') {
+    cssProp.PROPERTIES = {};
+
+    const _prefixes = {};
+    const _list = window.getComputedStyle(window.document.body);
+    // because this is a non-standard object
+    /*eslint-disable guard-for-in*/
+    for (const key in _list) {
+      const property = `${key}` === `${+key}` ? _list[key] : key;
+      cssProp.PROPERTIES[cssCamel(property)] = 1;
+      if (property[0] === '-') _prefixes[property.split('-')[1]] = 1;
+    }
+    /*eslint-enable guard-for-in*/
+    cssProp._PREFIXES = Object.keys(_prefixes);
+  }
+
+  cssProp.setPrefixes(['webkit', 'moz', 'ms', 'o']);
+})();
 
 module.exports = cssProp;
