@@ -1,6 +1,6 @@
 {
   "name": "css-property-normalize",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Function for checking and validating css properties",
   "main": "index.js",
   "repository": "https://github.com/wareset/css-property-normalize.git",
