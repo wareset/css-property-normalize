@@ -24,7 +24,9 @@ const cssProp = require('css-property-normalize');
 import cssProp from 'css-property-normalize';
 ```
 
-### Basic usage: `cssProp(property: String, [isCamelCase: Boolean = cssProp.isCamelCase = false], [isStrictMode: Boolean = cssProp.isStrictMode = false])`
+### Basic usage:
+
+#### `cssProp(property: String, [isCamelCase: Boolean = cssProp.isCamelCase = false], [isStrictMode: Boolean = cssProp.isStrictMode = false])`
 
 ```js
 // Usage in webkit-browser:
@@ -91,3 +93,7 @@ console.log(cssProp('customprefix-appearance'));
 console.log(cssProp('o-appearance'));
 /* RETURN: */ ('o-appearance'); // because 'o' not isset in
 ```
+
+## License
+
+MIT
