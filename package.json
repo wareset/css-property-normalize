@@ -1,6 +1,6 @@
 {
   "name": "css-property-normalize",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Function for checking and validating css properties",
   "author": "cftcview <cftcview@gmail.com>",
   "homepage": "https://github.com/wareset/css-property-normalize#readme",
