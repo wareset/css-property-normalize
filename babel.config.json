@@ -1,6 +1,3 @@
 {
-  "plugins": [
-    ["@babel/plugin-proposal-class-properties"],
-    ["@babel/plugin-transform-block-scoping"]
-  ]
+  "plugins": [["@babel/plugin-transform-block-scoping"]]
 }

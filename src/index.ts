@@ -1,8 +1,9 @@
 export const cssPropertyNormalize = ((): {
   (property: string, toCamelCase?: boolean): string
 } => {
+  const d = ''
   const test = (regexp: RegExp, value: any): boolean => regexp.test(value)
-  const replace = (s: string, r: RegExp, p: any = ''): string => s.replace(r, p)
+  const replace = (s: string, r: RegExp, p: any = d): string => s.replace(r, p)
   const toLowerCase = (s: string): string => s.toLowerCase()
   const slice = (s: string, n1: number, n2?: number): string => s.slice(n1, n2)
   const split = (s: string, r: RegExp): string[] => s.split(r)
@@ -27,8 +28,9 @@ export const cssPropertyNormalize = ((): {
       prefixy((tmp[0][0] === DASH ? tmp.shift() : '') + tmp.join(DASH))) ||
     prop
 
-  const PROPERTY_LIST: any = {}
-  ;((): any => {
+  let PROPERTY_LIST: any
+  const init = (): any => {
+    PROPERTY_LIST = {}
     try {
       const COMPUTEDS = window.getComputedStyle(window.document.body)
       /* eslint-disable guard-for-in */
@@ -39,7 +41,7 @@ export const cssPropertyNormalize = ((): {
     } catch (e) {
       /**/
     }
-  })()
+  }
 
   const CACHE: any = {}
   const resDefault = (prop: string): string =>
@@ -48,7 +50,7 @@ export const cssPropertyNormalize = ((): {
       ((prop = lowerty(prop)) &&
         (prop in PROPERTY_LIST || prop[0] + prop[1] === DOUBLE_DASH) &&
         prop) ||
-      ((prop = replace(prop, /^-\w+-/, '')) &&
+      ((prop = replace(prop, /^-\w+-/)) &&
         PREFIXES.some(
           (v, _: any) =>
             (_ = DASH + v + DASH + prop) in PROPERTY_LIST && (prop = _)
@@ -56,17 +58,23 @@ export const cssPropertyNormalize = ((): {
         prop) ||
       prop)
 
-  const CACHE_CAMELCASE: any = {}
   const camelly = (prop: string): string =>
     (prop = split(prop, /[^a-z\d]/i)
       .map((v) => v && v[0].toUpperCase() + toLowerCase(slice(v, 1)))
       .join('')) && toLowerCase(prop[0]) + slice(prop, 1)
 
+  const CACHE_CAMELCASE: any = {}
   const resCamelly = (prop: string): string =>
     CACHE_CAMELCASE[prop] || (CACHE_CAMELCASE[prop] = camelly(resDefault(prop)))
 
-  return (prop: string, toCamelCase = false): string =>
-    toCamelCase ? resCamelly(prop) : resDefault(prop)
+  return (prop = d, toCamelCase?: boolean): string => (
+    PROPERTY_LIST || init(),
+    prop && (prop += d)
+      ? toCamelCase
+        ? resCamelly(prop)
+        : resDefault(prop)
+      : d
+  )
 })()
 
 export default cssPropertyNormalize
